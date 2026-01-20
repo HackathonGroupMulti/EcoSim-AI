@@ -1,75 +1,72 @@
+import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Edges } from '@react-three/drei';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
+import { OrbitControls, Stars } from '@react-three/drei';
+import { EffectComposer, Bloom, ChromaticAberration } from '@react-three/postprocessing';
+import { BlendFunction } from 'postprocessing';
 import type { Tile } from '../types';
-import { BIOME_COLORS } from '../types';
-
-interface TileMeshProps {
-  tile: Tile;
-  gridSize: number;
-  isSelected: boolean;
-  onClick: () => void;
-}
-
-function TileMesh({ tile, gridSize, isSelected, onClick }: TileMeshProps) {
-  const color = BIOME_COLORS[tile.biome];
-  const offset = gridSize / 2 - 0.5;
-  const height = 0.1 + (tile.elevation / 100) * 0.8;
-
-  return (
-    <mesh
-      position={[tile.x - offset, height / 2, tile.y - offset]}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-    >
-      <boxGeometry args={[0.9, height, 0.9]} />
-      <meshStandardMaterial
-        color={isSelected ? '#ffffff' : color}
-        transparent
-        opacity={0.85}
-      />
-      <Edges color={isSelected ? '#00ffff' : '#ffffff'} threshold={15} lineWidth={1} />
-    </mesh>
-  );
-}
-
-interface TreeProps {
-  position: [number, number, number];
-}
-
-function Tree({ position }: TreeProps) {
-  return (
-    <group position={position}>
-      <mesh position={[0, 0.3, 0]}>
-        <coneGeometry args={[0.15, 0.4, 4]} />
-        <meshStandardMaterial color="#1a4025" transparent opacity={0.9} />
-        <Edges color="#ffffff" threshold={15} />
-      </mesh>
-    </group>
-  );
-}
-
-interface MountainProps {
-  position: [number, number, number];
-}
-
-function Mountain({ position }: MountainProps) {
-  return (
-    <mesh position={position}>
-      <coneGeometry args={[0.3, 0.6, 4]} />
-      <meshStandardMaterial color="#4a4a5a" transparent opacity={0.9} />
-      <Edges color="#ffffff" threshold={15} />
-    </mesh>
-  );
-}
+import Water from './Water';
+import Island from './Island';
 
 interface EcosystemViewportProps {
   tiles: Tile[];
   gridSize: number;
   selectedTile: [number, number] | null;
   onTileSelect: (x: number, y: number) => void;
+}
+
+function Scene({
+  tiles,
+  gridSize,
+  selectedTile,
+  onTileSelect,
+}: EcosystemViewportProps) {
+  return (
+    <>
+      {/* Lighting */}
+      <ambientLight intensity={0.3} />
+      <directionalLight
+        position={[10, 15, 5]}
+        intensity={1}
+        castShadow
+        shadow-mapSize={[1024, 1024]}
+      />
+      <pointLight position={[-10, 10, -10]} intensity={0.2} color="#4080ff" />
+      <hemisphereLight args={['#87ceeb', '#3d5c3d', 0.3]} />
+
+      {/* Stars in background */}
+      <Stars
+        radius={50}
+        depth={50}
+        count={1000}
+        factor={2}
+        saturation={0}
+        fade
+        speed={0.5}
+      />
+
+      {/* Ocean */}
+      <Water size={25} position={[0, -0.05, 0]} />
+
+      {/* Island with tiles and props */}
+      <Island
+        tiles={tiles}
+        gridSize={gridSize}
+        selectedTile={selectedTile}
+        onTileSelect={onTileSelect}
+      />
+
+      {/* Camera controls */}
+      <OrbitControls
+        enablePan={true}
+        enableZoom={true}
+        enableRotate={true}
+        minDistance={5}
+        maxDistance={25}
+        maxPolarAngle={Math.PI / 2.2}
+        target={[0, 0.5, 0]}
+      />
+    </>
+  );
 }
 
 export default function EcosystemViewport({
@@ -79,63 +76,33 @@ export default function EcosystemViewport({
   onTileSelect,
 }: EcosystemViewportProps) {
   return (
-    <Canvas camera={{ position: [8, 8, 8], fov: 50 }}>
-      <color attach="background" args={['#0a0a0a']} />
+    <Canvas
+      camera={{ position: [10, 8, 10], fov: 45 }}
+      shadows
+      gl={{ antialias: true }}
+    >
+      <color attach="background" args={['#0a0a12']} />
 
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[10, 10, 5]} intensity={0.8} />
-      <pointLight position={[-10, 10, -10]} intensity={0.3} />
+      <Suspense fallback={null}>
+        <Scene
+          tiles={tiles}
+          gridSize={gridSize}
+          selectedTile={selectedTile}
+          onTileSelect={onTileSelect}
+        />
+      </Suspense>
 
-      <group>
-        {tiles.map((tile) => (
-          <TileMesh
-            key={`${tile.x}-${tile.y}`}
-            tile={tile}
-            gridSize={gridSize}
-            isSelected={selectedTile?.[0] === tile.x && selectedTile?.[1] === tile.y}
-            onClick={() => onTileSelect(tile.x, tile.y)}
-          />
-        ))}
-
-        {/* Add trees to forest tiles */}
-        {tiles
-          .filter((t) => t.biome === 'forest')
-          .map((tile) => {
-            const offset = gridSize / 2 - 0.5;
-            const baseHeight = 0.1 + (tile.elevation / 100) * 0.8;
-            return (
-              <Tree
-                key={`tree-${tile.x}-${tile.y}`}
-                position={[tile.x - offset, baseHeight, tile.y - offset]}
-              />
-            );
-          })}
-
-        {/* Add peaks to mountain tiles */}
-        {tiles
-          .filter((t) => t.biome === 'mountain')
-          .map((tile) => {
-            const offset = gridSize / 2 - 0.5;
-            const baseHeight = 0.1 + (tile.elevation / 100) * 0.8;
-            return (
-              <Mountain
-                key={`mountain-${tile.x}-${tile.y}`}
-                position={[tile.x - offset, baseHeight + 0.3, tile.y - offset]}
-              />
-            );
-          })}
-      </group>
-
-      <OrbitControls
-        enablePan={true}
-        enableZoom={true}
-        enableRotate={true}
-        minDistance={5}
-        maxDistance={20}
-      />
-
+      {/* Post-processing effects */}
       <EffectComposer>
-        <Bloom luminanceThreshold={0.8} luminanceSmoothing={0.9} intensity={0.3} />
+        <Bloom
+          luminanceThreshold={0.6}
+          luminanceSmoothing={0.9}
+          intensity={0.4}
+        />
+        <ChromaticAberration
+          blendFunction={BlendFunction.NORMAL}
+          offset={[0.0005, 0.0005]}
+        />
       </EffectComposer>
     </Canvas>
   );
