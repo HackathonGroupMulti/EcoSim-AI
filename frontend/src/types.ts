@@ -33,10 +33,15 @@ export interface EcosystemState {
   events_log: string[];
 }
 
+export interface TileCoord {
+  x: number;
+  y: number;
+}
+
 export interface SimulationEvent {
   description: string;
   affected_species: string[];
-  affected_tiles: [number, number][];
+  affected_tiles: TileCoord[];
   severity: 'low' | 'medium' | 'high';
 }
 

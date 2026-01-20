@@ -236,7 +236,72 @@ Return the complete new state with updated populations, any new events, and a na
     result = SimulationResult.model_validate_json(response.text)
     result.new_state.turn = current_state.turn + 1
 
+    # Update tiles based on species changes (Gemini doesn't manage tiles directly)
+    result.new_state.tiles = update_tiles_from_state(
+        current_state.tiles,
+        result.new_state.species,
+        result.new_state.season
+    )
+
     return result
+
+
+def update_tiles_from_state(
+    tiles: list[Tile],
+    species: list[Species],
+    season: str
+) -> list[Tile]:
+    """
+    Update tile vegetation and species_present based on the new species state.
+    This derives visual changes from Gemini's species population decisions.
+    """
+    # Build lookup of species by preferred biome
+    species_by_biome: dict[BiomeType, list[Species]] = {}
+    for sp in species:
+        if sp.preferred_biome not in species_by_biome:
+            species_by_biome[sp.preferred_biome] = []
+        species_by_biome[sp.preferred_biome].append(sp)
+
+    # Calculate total producer (plant) population for vegetation scaling
+    total_plants = sum(sp.population for sp in species if sp.diet == DietType.PRODUCER)
+    max_plants = 15000  # Baseline for full vegetation
+
+    updated_tiles = []
+    for tile in tiles:
+        new_tile = tile.model_copy()
+
+        # Update species_present based on which species prefer this biome
+        new_tile.species_present = []
+        biome_species = species_by_biome.get(tile.biome, [])
+        for sp in biome_species:
+            if sp.population > 0:
+                new_tile.species_present.append(sp.name)
+
+        # Update vegetation based on producer populations in this biome type
+        biome_producers = [sp for sp in biome_species if sp.diet == DietType.PRODUCER]
+        if biome_producers:
+            producer_pop = sum(sp.population for sp in biome_producers)
+            # Scale vegetation 0-100 based on population
+            new_tile.vegetation = min(100, max(5, int(producer_pop / max_plants * 100 * 1.5)))
+
+        # Seasonal effects on vegetation
+        if season == "winter":
+            new_tile.vegetation = max(10, int(new_tile.vegetation * 0.6))
+        elif season == "spring":
+            new_tile.vegetation = min(100, int(new_tile.vegetation * 1.2))
+        elif season == "summer":
+            new_tile.vegetation = min(100, int(new_tile.vegetation * 1.1))
+        # fall: no change
+
+        # Herbivore grazing reduces vegetation slightly
+        biome_herbivores = [sp for sp in biome_species if sp.diet == DietType.HERBIVORE]
+        herbivore_pop = sum(sp.population for sp in biome_herbivores)
+        grazing_impact = min(20, int(herbivore_pop / 50))
+        new_tile.vegetation = max(5, new_tile.vegetation - grazing_impact)
+
+        updated_tiles.append(new_tile)
+
+    return updated_tiles
 
 
 async def chat_about_ecosystem(

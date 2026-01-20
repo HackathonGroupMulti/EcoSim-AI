@@ -58,20 +58,25 @@ export default function SpeciesPanel({ species }: SpeciesPanelProps) {
         })}
       </div>
 
-      {/* Legend */}
+      {/* Legend - matches 3D marker colors */}
       <div className="mt-4 pt-3 border-t border-zinc-700">
+        <div className="text-xs text-zinc-500 mb-2">Map Markers</div>
         <div className="text-xs text-zinc-500 space-y-1">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-400"></span>
-            <span>Producer</span>
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#00FF00' }}></span>
+            <span>Producers (plants)</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
-            <span>Low population</span>
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#00BFFF' }}></span>
+            <span>Herbivores</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-red-400"></span>
-            <span>Critical</span>
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#FF0000' }}></span>
+            <span>Carnivores</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#FF8C00' }}></span>
+            <span>Omnivores</span>
           </div>
         </div>
       </div>

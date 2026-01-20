@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame, extend } from '@react-three/fiber';
 import { shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
@@ -7,9 +7,9 @@ import * as THREE from 'three';
 const WaterMaterial = shaderMaterial(
   {
     uTime: 0,
-    uColor: new THREE.Color('#1a3a4a'),
-    uDeepColor: new THREE.Color('#0a1a2a'),
-    uFoamColor: new THREE.Color('#4a8090'),
+    uColor: new THREE.Color('#40E0D0'),
+    uDeepColor: new THREE.Color('#00CED1'),
+    uFoamColor: new THREE.Color('#7FFFD4'),
     uOpacity: 0.85,
   },
   // Vertex shader
@@ -55,7 +55,12 @@ const WaterMaterial = shaderMaterial(
       float shimmer = sin(vUv.x * 50.0 + uTime) * sin(vUv.y * 50.0 + uTime * 0.7);
       color += shimmer * 0.02;
 
-      gl_FragColor = vec4(color, uOpacity);
+      // Fade out at edges (distance from center)
+      vec2 center = vUv - 0.5;
+      float dist = length(center) * 2.0;
+      float edgeFade = 1.0 - smoothstep(0.7, 1.0, dist);
+
+      gl_FragColor = vec4(color, uOpacity * edgeFade);
     }
   `
 );
@@ -73,15 +78,41 @@ declare module '@react-three/fiber' {
 interface WaterProps {
   size?: number;
   position?: [number, number, number];
+  ecosystemHealth?: number;
 }
 
-export default function Water({ size = 30, position = [0, -0.1, 0] }: WaterProps) {
+export default function Water({ size = 30, position = [0, -0.1, 0], ecosystemHealth = 1.0 }: WaterProps) {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
-  // Animate the water
+  // Calculate water colors based on ecosystem health
+  // Healthy = turquoise/tropical, Unhealthy = murky brown/gray
+  const colors = useMemo(() => {
+    // Healthy colors (Bahamas blue)
+    const healthyColor = new THREE.Color('#40E0D0');
+    const healthyDeep = new THREE.Color('#00CED1');
+    const healthyFoam = new THREE.Color('#7FFFD4');
+
+    // Unhealthy colors (murky/polluted)
+    const unhealthyColor = new THREE.Color('#4A5D4A');
+    const unhealthyDeep = new THREE.Color('#2F3D2F');
+    const unhealthyFoam = new THREE.Color('#6B7B6B');
+
+    return {
+      color: healthyColor.clone().lerp(unhealthyColor, 1 - ecosystemHealth),
+      deepColor: healthyDeep.clone().lerp(unhealthyDeep, 1 - ecosystemHealth),
+      foamColor: healthyFoam.clone().lerp(unhealthyFoam, 1 - ecosystemHealth),
+      opacity: 0.75 + ecosystemHealth * 0.15, // More opaque when unhealthy
+    };
+  }, [ecosystemHealth]);
+
+  // Animate the water and update colors
   useFrame((state) => {
     if (materialRef.current) {
       materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
+      materialRef.current.uniforms.uColor.value = colors.color;
+      materialRef.current.uniforms.uDeepColor.value = colors.deepColor;
+      materialRef.current.uniforms.uFoamColor.value = colors.foamColor;
+      materialRef.current.uniforms.uOpacity.value = colors.opacity;
     }
   });
 

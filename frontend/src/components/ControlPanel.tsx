@@ -14,6 +14,7 @@ const INTERVENTION_TYPES = [
   { value: 'remove_species', label: 'Remove Species' },
   { value: 'natural_disaster', label: 'Trigger Disaster' },
   { value: 'change_climate', label: 'Climate Event' },
+  { value: 'calamity', label: '💀 CALAMITY' },
 ];
 
 const SPECIES_OPTIONS = [
@@ -26,6 +27,19 @@ const DISASTER_OPTIONS = [
 
 const CLIMATE_OPTIONS = [
   'Temperature Rise', 'Temperature Drop', 'Heavy Rainfall', 'Extended Dry Season'
+];
+
+const CALAMITY_OPTIONS = [
+  'Meteor Strike',
+  'Volcanic Eruption',
+  'Toxic Algae Bloom',
+  'Invasive Swarm (Locusts)',
+  'Mysterious Plague',
+  'Earthquake & Tsunami',
+  'Nuclear Fallout',
+  'Alien Abduction of Top Predators',
+  'Zombie Outbreak',
+  'Spontaneous Combustion Event',
 ];
 
 export default function ControlPanel({
@@ -47,6 +61,8 @@ export default function ControlPanel({
         return DISASTER_OPTIONS;
       case 'change_climate':
         return CLIMATE_OPTIONS;
+      case 'calamity':
+        return CALAMITY_OPTIONS;
       default:
         return [];
     }
@@ -77,6 +93,10 @@ export default function ControlPanel({
           break;
         case 'change_climate':
           action = `${selectedOption} affects the ecosystem`;
+          break;
+        case 'calamity':
+          action = `CALAMITY: ${selectedOption} devastates the ecosystem!`;
+          details = 'This is a catastrophic event with severe consequences for all species.';
           break;
       }
 

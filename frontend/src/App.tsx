@@ -9,7 +9,6 @@ import EventLog from './components/EventLog';
 
 function App() {
   const [ecosystem, setEcosystem] = useState<EcosystemState | null>(null);
-  const [selectedTile, setSelectedTile] = useState<[number, number] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [events, setEvents] = useState<SimulationEvent[]>([]);
   const [narration, setNarration] = useState('');
@@ -52,14 +51,6 @@ function App() {
       console.error(err);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleTileSelect = (x: number, y: number) => {
-    if (selectedTile && selectedTile[0] === x && selectedTile[1] === y) {
-      setSelectedTile(null);
-    } else {
-      setSelectedTile([x, y]);
     }
   };
 
@@ -109,10 +100,8 @@ function App() {
         {/* Main 3D Viewport */}
         <div className="flex-1 relative">
           <EcosystemViewport
-            tiles={ecosystem.tiles}
-            gridSize={ecosystem.grid_size}
-            selectedTile={selectedTile}
-            onTileSelect={handleTileSelect}
+            species={ecosystem.species}
+            season={ecosystem.season}
           />
         </div>
 
@@ -121,7 +110,7 @@ function App() {
           <ControlPanel
             temperature={ecosystem.temperature}
             season={ecosystem.season}
-            selectedTile={selectedTile}
+            selectedTile={null}
             onAdvanceTurn={handleAdvanceTurn}
             isLoading={isLoading}
           />

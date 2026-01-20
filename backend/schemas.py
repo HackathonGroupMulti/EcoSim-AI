@@ -58,11 +58,17 @@ class EcosystemState(BaseModel):
     events_log: list[str] = Field(default=[], description="Recent events that occurred")
 
 
+class TileCoord(BaseModel):
+    """A tile coordinate."""
+    x: int = Field(description="X coordinate")
+    y: int = Field(description="Y coordinate")
+
+
 class SimulationEvent(BaseModel):
     """An event that occurred during simulation."""
     description: str = Field(description="What happened")
     affected_species: list[str] = Field(default=[], description="Species impacted")
-    affected_tiles: list[tuple[int, int]] = Field(default=[], description="Tile coordinates affected")
+    affected_tiles: list[TileCoord] = Field(default=[], description="Tile coordinates affected")
     severity: str = Field(description="low, medium, or high impact")
 
 
