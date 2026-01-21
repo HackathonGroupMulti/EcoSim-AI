@@ -61,8 +61,9 @@ function Scene({ species, season, ecosystemHealth }: SceneProps) {
         width={120}
         length={120}
         position={[0, -3.5, 0]}
-        waterColor={new Color('#40E0D0').lerp(new Color('#4A5D4A'), 1 - ecosystemHealth).getHex()}
+        waterColor={new Color('#1E90FF').lerp(new Color('#2F4F4F'), 1 - ecosystemHealth).getHex()}
         distortionScale={0.7}
+        alpha={0.6}
       />
 
       {/* Terrain - tinted by ecosystem health and season */}

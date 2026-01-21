@@ -231,8 +231,9 @@ class WaterSimple extends Mesh {
 					//vec3 albedo = mix( ( sunColor * diffuseLight * 0.3 + scatter ) * getShadowMask(), ( vec3( 0.1 ) + reflectionSample * 0.9 + reflectionSample * specularLight ), reflectance);
 
                     //vec3 albedo = mix( ( sunColor * diffuseLight * 0.3 + scatter ) * getShadowMask(), ( reflectionSample ), reflectance);
-					
-                    vec3 outgoingLight = reflectionSample;
+
+                    // Mix reflection with water color (alpha controls reflection strength)
+                    vec3 outgoingLight = mix(waterColor, reflectionSample, alpha);
 
 
 					float luminance = dot(fx.rgb * fxDisplayColorAlpha, vec3(0.299, 0.587, 0.114));

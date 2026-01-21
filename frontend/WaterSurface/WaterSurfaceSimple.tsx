@@ -13,6 +13,7 @@ type Props = {
 	waterColor?: number;
 	position?: [number, number, number];
 	distortionScale?: number;
+	alpha?: number;
 	fxDistortionFactor?: number;
 	fxDisplayColorAlpha?: number;
 	fxMixColor?: number | string;
@@ -26,6 +27,7 @@ export default function WaterSurfaceSimple({
 	waterColor = 0x000000,
 	position = [0, 0, 0],
 	distortionScale = 0.7,
+	alpha = 1.0,
 	fxDistortionFactor = 0.2,
 	fxDisplayColorAlpha = 0.0,
 	fxMixColor = 0x000000,
@@ -49,6 +51,7 @@ export default function WaterSurfaceSimple({
 
 			waterColor: waterColor,
 			distortionScale: distortionScale,
+			alpha: alpha,
 			fxDistortionFactor: fxDistortionFactor,
 			fxDisplayColorAlpha: fxDisplayColorAlpha,
 			fxMixColor: fxMixColor,
@@ -56,6 +59,7 @@ export default function WaterSurfaceSimple({
 			format: (gl as any).encoding,
 		}),
 		[
+			alpha,
 			dimensions,
 			distortionScale,
 			fxDisplayColorAlpha,
