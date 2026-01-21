@@ -23,7 +23,9 @@ load_dotenv()
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-SYSTEM_PROMPT = """You are an advanced ecosystem simulation engine. Your role is to realistically simulate the consequences of time passing and user interventions on a virtual ecosystem.
+SYSTEM_PROMPT = """You are an advanced ecosystem simulation engine. Your role is to realistically simulate the consequences of time passing and user interventions on a virtual ecosystem set on a Hawaiian island.
+
+When referring to species, use simple common names (e.g. "Hawk" not "Hawaiian Hawk" or "Buteo solitarius"). Keep species names generic and simple.
 
 You must follow ecological principles:
 - Predator-prey dynamics (Lotka-Volterra style relationships)

@@ -7,23 +7,24 @@ Built with Google Gemini for the Google AI Hackathon.
 ## What is this?
 
 EcoSim AI is an interactive 3D ecosystem simulator where an AI (Google Gemini) acts as the "game master" of nature. Every turn, the AI calculates predator-prey dynamics, seasonal changes, population growth, and environmental events - then narrates what happened in natural language.
-<img width="1280" height="590" alt="Screenshot 2026-01-21 182735" src="https://github.com/user-attachments/assets/9f02233d-2f51-47fa-88d0-ae2e7c97bbd2" />
+
+<img width="1280" alt="EcoSim AI Screenshot" src="https://github.com/user-attachments/assets/9f02233d-2f51-47fa-88d0-ae2e7c97bbd2" />
 
 **Watch as:**
-- Wolves hunt deer, foxes chase rabbits
-- Plants grow and spread across the terrain
-- Seasons change the landscape
+- Predators hunt prey across a Hawaiian island ecosystem
+- Native plants grow and spread across the terrain
+- Seasons change the landscape and affect reproduction
 - Your interventions ripple through the food chain
 - Calamities devastate (or reshape) the ecosystem
 
 ## Features
 
-- **3D Island Visualization** - Beautiful terrain with dynamic water, sky, and species markers
+- **3D Hawaiian Island Visualization** - Beautiful terrain with realistic water reflections and species markers
 - **AI-Driven Simulation** - Gemini calculates realistic ecosystem dynamics each turn
-- **Visual Ecosystem Health** - Sky turns apocalyptic and water becomes murky as the ecosystem degrades
-- **Species Tracking** - Color-coded markers show where animals and plants are thriving
-- **User Interventions** - Introduce species, trigger disasters, or unleash calamities
-- **Natural Language Narration** - The AI explains what's happening in the ecosystem
+- **Species Tracking** - Color-coded markers show populations across the terrain (green for plants, blue for herbivores, red for carnivores, orange for omnivores)
+- **User Interventions** - Introduce new species, adjust populations, or unleash calamities
+- **Natural Language Narration** - The AI explains what's happening in the ecosystem each turn
+- **Save/Load System** - Save your ecosystem state and continue later
 
 ## Calamity Mode
 
@@ -81,8 +82,7 @@ Open http://localhost:5173 and start simulating!
    - Random events (births, deaths, migrations)
 3. **Visualization** - The 3D view updates to reflect:
    - Species populations (colored dots on terrain)
-   - Ecosystem health (sky color, water clarity)
-   - Seasonal tinting of terrain
+   - Seasonal changes
 
 ## API Endpoints
 
@@ -91,6 +91,19 @@ Open http://localhost:5173 and start simulating!
 | `/create` | POST | Create a new ecosystem |
 | `/advance` | POST | Advance simulation by one turn |
 | `/state` | GET | Get current ecosystem state |
+
+## Built With
+
+- React
+- TypeScript
+- Three.js
+- React Three Fiber
+- GLSL Shaders
+- Tailwind CSS
+- Python
+- FastAPI
+- Google Gemini API
+- Pydantic
 
 ## Credits
 
