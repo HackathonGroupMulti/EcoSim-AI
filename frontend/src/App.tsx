@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { EcosystemState, SimulationEvent } from './types';
 import { createEcosystem, advanceTurn, loadEcosystem } from './api';
 import Header from './components/Header';
@@ -23,6 +23,11 @@ function App() {
   const [narration, setNarration] = useState('');
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarOpen(prev => !prev);
+  }, []);
 
   // Initialize ecosystem on mount
   useEffect(() => {
@@ -176,7 +181,7 @@ function App() {
         </div>
       )}
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         {/* Main 3D Viewport */}
         <div className="flex-1 relative">
           <EcosystemViewport
@@ -185,8 +190,35 @@ function App() {
           />
         </div>
 
-        {/* Right Sidebar */}
-        <div className="w-80 p-4 flex flex-col gap-4 overflow-y-auto">
+        {/* Sidebar Toggle Button */}
+        <button
+          onClick={toggleSidebar}
+          className="absolute top-4 right-4 z-20 bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 rounded-lg p-2 transition-all lg:hidden"
+          aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+        >
+          {sidebarOpen ? (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+            </svg>
+          )}
+        </button>
+
+        {/* Right Sidebar - Responsive overlay on mobile, fixed on desktop */}
+        <div
+          className={`
+            fixed lg:relative inset-y-0 right-0 z-10
+            w-80 max-w-[85vw] p-4 flex flex-col gap-4 overflow-y-auto
+            bg-zinc-950 lg:bg-transparent
+            border-l border-zinc-800 lg:border-0
+            transform transition-transform duration-300 ease-in-out
+            ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}
+            lg:translate-x-0
+          `}
+        >
           <ControlPanel
             temperature={ecosystem.temperature}
             season={ecosystem.season}
@@ -205,6 +237,15 @@ function App() {
             />
           </div>
         </div>
+
+        {/* Backdrop overlay for mobile when sidebar is open */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-[5] lg:hidden"
+            onClick={toggleSidebar}
+            aria-hidden="true"
+          />
+        )}
       </div>
     </div>
   );

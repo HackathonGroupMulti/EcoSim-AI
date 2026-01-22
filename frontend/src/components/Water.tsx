@@ -7,10 +7,10 @@ import * as THREE from 'three';
 const WaterMaterial = shaderMaterial(
   {
     uTime: 0,
-    uColor: new THREE.Color('#40E0D0'),
-    uDeepColor: new THREE.Color('#00CED1'),
-    uFoamColor: new THREE.Color('#7FFFD4'),
-    uOpacity: 0.85,
+    uColor: new THREE.Color('#1E90FF'),
+    uDeepColor: new THREE.Color('#0066CC'),
+    uFoamColor: new THREE.Color('#87CEEB'),
+    uOpacity: 0.92,
   },
   // Vertex shader
   `
@@ -87,10 +87,10 @@ export default function Water({ size = 30, position = [0, -0.1, 0], ecosystemHea
   // Calculate water colors based on ecosystem health
   // Healthy = turquoise/tropical, Unhealthy = murky brown/gray
   const colors = useMemo(() => {
-    // Healthy colors (Bahamas blue)
-    const healthyColor = new THREE.Color('#40E0D0');
-    const healthyDeep = new THREE.Color('#00CED1');
-    const healthyFoam = new THREE.Color('#7FFFD4');
+    // Healthy colors (deeper ocean blue)
+    const healthyColor = new THREE.Color('#1E90FF');
+    const healthyDeep = new THREE.Color('#0066CC');
+    const healthyFoam = new THREE.Color('#87CEEB');
 
     // Unhealthy colors (murky/polluted)
     const unhealthyColor = new THREE.Color('#4A5D4A');
@@ -101,7 +101,7 @@ export default function Water({ size = 30, position = [0, -0.1, 0], ecosystemHea
       color: healthyColor.clone().lerp(unhealthyColor, 1 - ecosystemHealth),
       deepColor: healthyDeep.clone().lerp(unhealthyDeep, 1 - ecosystemHealth),
       foamColor: healthyFoam.clone().lerp(unhealthyFoam, 1 - ecosystemHealth),
-      opacity: 0.75 + ecosystemHealth * 0.15, // More opaque when unhealthy
+      opacity: 0.9 + ecosystemHealth * 0.05, // Higher base opacity for deeper look
     };
   }, [ecosystemHealth]);
 
